@@ -109,6 +109,16 @@ nếu điền cả 2 thì Claude được ưu tiên:
 - AI **chỉ chạy với câu hỏi lạ** — 90% câu hỏi thường gặp đã được template
   trả lời miễn phí, nên chi phí thực tế còn thấp hơn nhiều.
 
+## Trí nhớ hội thoại
+
+Bot nhớ ~6 lượt trao đổi gần nhất của từng khách (trong 24h) nên hiểu được
+câu nối tiếp kiểu "vậy cái đó giá sao?", "đặt lịch đó luôn đi".
+- Lưu trong RAM của server → deploy/restart lại là quên hết (chấp nhận được
+  cho trí nhớ ngắn hạn).
+- Chạy đúng với 1 worker của gunicorn (mặc định). Không tăng `--workers`
+  nếu chưa có nơi lưu chung (Redis/DB).
+- Chỉnh bằng `HISTORY_TURNS` và `HISTORY_TTL_HOURS`.
+
 ## Tùy chỉnh nội dung
 
 Mọi chữ bot nói nằm trong **`knowledge.json`** — sửa file này, push lên GitHub,

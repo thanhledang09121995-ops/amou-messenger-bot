@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import re
+import time
 
 import requests
 from flask import Flask, jsonify, request
@@ -35,6 +36,10 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 # HTTP timeout (seconds) for AI calls - free providers can be slow, raise if needed
 AI_TIMEOUT = int(os.environ.get("AI_TIMEOUT", "25"))
+# Conversation memory: how many back-and-forth turns to remember per user,
+# and how long (hours) before an idle conversation is forgotten
+HISTORY_TURNS = int(os.environ.get("HISTORY_TURNS", "6"))
+HISTORY_TTL_HOURS = int(os.environ.get("HISTORY_TTL_HOURS", "24"))
 GRAPH = "https://graph.facebook.com/v21.0"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -166,6 +171,39 @@ def send_text(psid: str, text: str, with_menu: bool = False, lang: str = "vi"):
     api_post("/me/messages", payload)
 
 # ---------------------------------------------------------------- handlers ---
+# ------------------------------------------------------- conversation memory
+# Short-term per-user memory, kept in process memory. Survives while the
+# process runs; resets on redeploy/restart. Consistent with gunicorn's
+# default single worker - do not raise --workers without an external store.
+_conversations: dict[str, dict] = {}
+
+
+def _prune_stale(now: float):
+    ttl = HISTORY_TTL_HOURS * 3600
+    for psid in [k for k, v in _conversations.items() if now - v["updated"] > ttl]:
+        _conversations.pop(psid, None)
+
+
+def get_history(psid: str) -> list[dict]:
+    conv = _conversations.get(psid)
+    if not conv:
+        return []
+    if time.time() - conv["updated"] > HISTORY_TTL_HOURS * 3600:
+        _conversations.pop(psid, None)
+        return []
+    return list(conv["messages"])
+
+
+def add_history(psid: str, role: str, content: str):
+    now = time.time()
+    conv = _conversations.setdefault(psid, {"updated": now, "messages": []})
+    conv["messages"].append({"role": role, "content": content[:1000]})
+    conv["messages"] = conv["messages"][-(HISTORY_TURNS * 2):]
+    conv["updated"] = now
+    if len(_conversations) > 1000:
+        _prune_stale(now)
+
+
 def service_list(lang: str) -> str:
     lines = []
     for s in KB["services"]:
@@ -175,34 +213,30 @@ def service_list(lang: str) -> str:
     return "\n".join(lines)
 
 
-def handle_intent(psid: str, intent: str, lang: str):
+def build_intent_reply(intent: str, lang: str, psid: str = "") -> tuple[str, bool]:
+    """Build the template reply for an intent. Returns (text, show_quick_menu)."""
     shop = KB["shop"]
     if intent == "greeting":
-        send_text(psid, T(lang, "welcome", shop=shop["name"]), with_menu=True, lang=lang)
+        return T(lang, "welcome"), True
     elif intent == "price":
-        send_text(psid, T(lang, "price", services=service_list(lang),
-                          booking=KB["booking_url"][lang]),
-                  with_menu=True, lang=lang)
+        return (T(lang, "price", services=service_list(lang),
+                  booking=KB["booking_url"][lang]), True)
     elif intent == "booking":
-        send_text(psid, T(lang, "booking", booking=KB["booking_url"][lang]),
-                  with_menu=True, lang=lang)
+        return T(lang, "booking", booking=KB["booking_url"][lang]), True
     elif intent == "hours":
-        send_text(psid, T(lang, "hours", hours=shop["hours"][lang]),
-                  with_menu=True, lang=lang)
+        return T(lang, "hours", hours=shop["hours"][lang]), True
     elif intent == "address":
-        send_text(psid, T(lang, "address", address=shop["address"][lang]),
-                  with_menu=True, lang=lang)
+        return T(lang, "address", address=shop["address"][lang]), True
     elif intent == "services":
-        send_text(psid, T(lang, "services", services=service_list(lang)),
-                  with_menu=True, lang=lang)
+        return T(lang, "services", services=service_list(lang)), True
     elif intent == "promo":
-        send_text(psid, T(lang, "promo", promo=KB["promo"][lang],
-                          booking=KB["booking_url"][lang]),
-                  with_menu=True, lang=lang)
+        return (T(lang, "promo", promo=KB["promo"][lang],
+                  booking=KB["booking_url"][lang]), True)
     elif intent == "human":
         # Handoff: tell the customer staff were notified, log for the owner.
         log.warning("HUMAN HANDOFF requested by psid=%s (lang=%s)", psid, lang)
-        send_text(psid, T(lang, "human"), with_menu=False)
+        return T(lang, "human"), False
+    return T(lang, "fallback"), True
 
 
 def ai_provider() -> str:
@@ -227,11 +261,13 @@ def build_system_prompt(lang: str) -> str:
         f"Answer in {'Vietnamese' if lang == 'vi' else 'English' if lang == 'en' else 'Korean'}. "
         "Keep replies short (under 80 words), warm, no emojis overload. "
         "If asked about prices not listed, say prices are confirmed in-store and share the booking link. "
-        "If the customer wants a human, say staff will be notified shortly."
+        "If the customer wants a human, say staff will be notified shortly. "
+        "Use the conversation history to resolve follow-up references "
+        "(e.g. 'cái đó', 'nó', 'dịch vụ đó' refer to what was discussed before)."
     )
 
 
-def claude_reply(user_text: str, lang: str) -> str | None:
+def claude_reply(user_text: str, lang: str, history: list[dict] | None = None) -> str | None:
     """Free-form answer via Anthropic's Messages API."""
     try:
         r = requests.post(
@@ -243,7 +279,7 @@ def claude_reply(user_text: str, lang: str) -> str | None:
             },
             json={"model": ANTHROPIC_MODEL, "max_tokens": 300,
                   "system": build_system_prompt(lang),
-                  "messages": [{"role": "user", "content": user_text}]},
+                  "messages": list(history or []) + [{"role": "user", "content": user_text}]},
             timeout=AI_TIMEOUT,
         )
         r.raise_for_status()
@@ -255,15 +291,16 @@ def claude_reply(user_text: str, lang: str) -> str | None:
         return None
 
 
-def openai_reply(user_text: str, lang: str) -> str | None:
+def openai_reply(user_text: str, lang: str, history: list[dict] | None = None) -> str | None:
     """Free-form answer via any OpenAI-compatible chat completions API."""
     try:
         r = requests.post(
             f"{AI_BASE_URL}/chat/completions",
             headers={"Authorization": f"Bearer {AI_API_KEY}"},
             json={"model": AI_MODEL, "temperature": 0.4, "max_tokens": 300,
-                  "messages": [{"role": "system", "content": build_system_prompt(lang)},
-                               {"role": "user", "content": user_text}]},
+                  "messages": [{"role": "system", "content": build_system_prompt(lang)}]
+                              + list(history or [])
+                              + [{"role": "user", "content": user_text}]},
             timeout=AI_TIMEOUT,
         )
         r.raise_for_status()
@@ -273,13 +310,13 @@ def openai_reply(user_text: str, lang: str) -> str | None:
         return None
 
 
-def ai_reply(user_text: str, lang: str) -> str | None:
-    """Free-form answer grounded in the shop knowledge base."""
+def ai_reply(user_text: str, lang: str, history: list[dict] | None = None) -> str | None:
+    """Free-form answer grounded in the shop knowledge base + conversation history."""
     provider = ai_provider()
     if provider == "anthropic":
-        return claude_reply(user_text, lang)
+        return claude_reply(user_text, lang, history)
     if provider == "openai":
-        return openai_reply(user_text, lang)
+        return openai_reply(user_text, lang, history)
     return None
 
 
@@ -287,14 +324,15 @@ def handle_message(psid: str, text: str):
     lang = detect_lang(text)
     intent = match_intent(text)
     send_typing(psid)
+    history = get_history(psid)
     if intent:
-        handle_intent(psid, intent, lang)
-        return
-    answer = ai_reply(text, lang)
-    if answer:
-        send_text(psid, answer, with_menu=True, lang=lang)
+        reply, with_menu = build_intent_reply(intent, lang, psid)
     else:
-        send_text(psid, T(lang, "fallback"), with_menu=True, lang=lang)
+        reply = ai_reply(text, lang, history) or T(lang, "fallback")
+        with_menu = True
+    send_text(psid, reply, with_menu=with_menu, lang=lang)
+    add_history(psid, "user", text)
+    add_history(psid, "assistant", reply)
 
 
 def handle_postback(psid: str, payload: str, lang_hint: str = "vi"):
@@ -302,7 +340,9 @@ def handle_postback(psid: str, payload: str, lang_hint: str = "vi"):
                "MENU_HOURS": "hours", "MENU_HUMAN": "human"}
     intent = mapping.get(payload)
     if intent:
-        handle_intent(psid, intent, lang_hint)
+        reply, with_menu = build_intent_reply(intent, lang_hint, psid)
+        send_text(psid, reply, with_menu=with_menu, lang=lang_hint)
+        add_history(psid, "assistant", reply)
 
 # ---------------------------------------------------------------- webhook ----
 @app.get("/webhook")
