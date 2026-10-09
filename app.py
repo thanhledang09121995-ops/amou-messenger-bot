@@ -253,14 +253,19 @@ def build_system_prompt(lang: str) -> str:
     addr = shop["address"].get(lang) or shop["address"]["en"]
     hours = shop["hours"].get(lang) or shop["hours"]["en"]
     booking = KB["booking_url"].get(lang) or KB["booking_url"]["en"]
+    menu = ", ".join(
+        f"{s['name']['en']} ({s['price']})" if s.get("price") else s["name"]["en"]
+        for s in KB["services"]
+    )
     return (
         f"You are the friendly receptionist of {shop['name']}, a Korean-style nail studio. "
         f"Address: {addr}. Hours: {hours}. "
-        f"Services: {', '.join(s['name']['en'] for s in KB['services'])}. "
+        f"Full service menu with prices: {menu}. "
         f"Booking: {booking}. Current promo: {KB['promo']['en']}. "
         f"Answer in {'Vietnamese' if lang == 'vi' else 'English' if lang == 'en' else 'Korean'}. "
         "Keep replies short (under 80 words), warm, no emojis overload. "
-        "If asked about prices not listed, say prices are confirmed in-store and share the booking link. "
+        "Quote the exact prices from the menu above when asked; "
+        "for anything not on the menu, say it will be confirmed in-store and share the booking link. "
         "If the customer wants a human, say staff will be notified shortly. "
         "Use the conversation history to resolve follow-up references "
         "(e.g. 'cái đó', 'nó', 'dịch vụ đó' refer to what was discussed before)."

@@ -1,1 +1,198 @@
-{"booking_url":{"en":"https://amounail.com/en/dat-lich","ko":"https://amounail.com/kr/dat-lich","vi":"https://amounail.com/vi/dat-lich"},"promo":{"en":"🎃 Our October Specials are on now — message us for the details!","ko":"🎃 10월 스페셜 이벤트 진행 중! 자세한 혜택은 문의해 주세요!","vi":"🎃 October Specials đang diễn ra tại tiệm — inbox để nhận ưu đãi chi tiết nhé!"},"replies":{"en":{"address":"📍 Find us at:\n{address}\n\nKorean-style studio, easy to find!","booking":"You can reserve your slot here 👇\n{booking}\n\nBooking online helps us prepare the best experience for you 💕","fallback":"I'm not quite sure what you mean 😅 Please pick an option below so I can help faster 👇","hours":"⏰ {shop} opening hours:\n{hours}\n\nWant me to hold a slot for you?","human":"Noted! Our staff will get back to you as soon as possible 🙏\nFeel free to leave your question here.","price":"Our service menu at {shop}:\n\n{services}\n\n👉 Book your slot here: {booking}","promo":"{promo}\n\n👉 Book here: {booking}","services":"Services at {shop}:\n\n{services}\n\nWhich service are you interested in? Happy to advise 💅","welcome":"Welcome to {shop} 💅\nHow can I help you today? Tap an option below 👇"},"ko":{"address":"📍 주소:\n{address}\n\n한국 스타일 네일샵, 찾기 쉬워요!","booking":"여기에서 예약하실 수 있어요 👇\n{booking}\n\n온라인 예약하시면 더 정성껏 준비해 드릴게요 💕","fallback":"죄송해요, 잘 이해하지 못했어요 😅 아래 옵션 중 선택해 주시면 빠르게 도와드릴게요 👇","hours":"⏰ {shop} 영업시간:\n{hours}\n\n원하시는 시간대를 예약해 드릴까요?","human":"알겠습니다! 직원이 최대한 빨리 답변드릴게요 🙏\n문의 내용을 남겨주세요.","price":"{shop} 서비스 메뉴:\n\n{services}\n\n👉 예약하기: {booking}","promo":"{promo}\n\n👉 예약: {booking}","services":"{shop} 서비스:\n\n{services}\n\n관심 있는 서비스가 있으신가요? 자세히 안내해 드릴게요 💅","welcome":"{shop}에 오신 것을 환영합니다 💅\n무엇을 도와드릴까요? 아래에서 선택해 주세요 👇"},"vi":{"address":"📍 Địa chỉ tiệm:\n{address}\n\nTiệm phong cách Hàn Quốc, dễ tìm lắm nè!","booking":"Bạn đặt lịch giữ chỗ tại đây nhé 👇\n{booking}\n\nĐặt online để bên mình chuẩn bị chu đáo nhất cho bạn 💕","fallback":"Mình chưa hiểu rõ ý bạn lắm 😅 Bạn chọn một mục bên dưới để mình hỗ trợ nhanh nhé 👇","hours":"⏰ {shop} mở cửa:\n{hours}\n\nBạn muốn mình giữ lịch khung giờ nào không?","human":"Dạ mình đã ghi nhận, nhân viên sẽ phản hồi bạn trong thời gian sớm nhất 🙏\nBạn cứ để lại câu hỏi ở đây nhé!","price":"Bảng giá dịch vụ tại {shop}:\n\n{services}\n\n👉 Đặt lịch giữ chỗ tại: {booking}","promo":"{promo}\n\n👉 Đặt lịch: {booking}","services":"Dịch vụ tại {shop}:\n\n{services}\n\nBạn quan tâm dịch vụ nào? Mình tư vấn chi tiết nhé 💅","welcome":"Chào bạn đã đến với {shop} 💅\nMình có thể giúp gì cho bạn hôm nay? Bạn chọn nhanh bên dưới nhé 👇"}},"services":[{"id":"manicure","name":{"en":"Manicure","ko":"매니큐어","vi":"Làm móng tay (Manicure)"},"price":null},{"id":"pedicure","name":{"en":"Pedicure","ko":"페디큐어","vi":"Làm móng chân (Pedicure)"},"price":null},{"id":"gel","name":{"en":"Korean gel polish","ko":"한국 젤 네일","vi":"Sơn gel Hàn Quốc"},"price":null},{"id":"acrylic","name":{"en":"Acrylic / nail extensions","ko":"아크릴 / 네일 연장","vi":"Đắp móng bột / úp móng"},"price":null},{"id":"art","name":{"en":"Nail art design","ko":"네일 아트","vi":"Vẽ móng nghệ thuật"},"price":null}],"shop":{"address":{"en":"175 Nguyen Chi Thanh, Hai Chau, Da Nang, Vietnam","ko":"다낭 하이쩌우 응우옌찌타인 175","vi":"175 Nguyễn Chí Thanh, Hải Châu, Đà Nẵng"},"hours":{"en":"9:00 AM – 8:00 PM daily","ko":"매일 09:00 – 20:00","vi":"9:00 – 20:00 hàng ngày"},"name":"AMOU NAIL STUDIO","phone":""}}
+{
+  "booking_url": {
+    "en": "https://amounail.com/en/dat-lich",
+    "ko": "https://amounail.com/kr/dat-lich",
+    "vi": "https://amounail.com/vi/dat-lich"
+  },
+  "promo": {
+    "en": "🎃 Our October Specials are on now — message us for the details!",
+    "ko": "🎃 10월 스페셜 이벤트 진행 중! 자세한 혜택은 문의해 주세요!",
+    "vi": "🎃 October Specials đang diễn ra tại tiệm — inbox để nhận ưu đãi chi tiết nhé!"
+  },
+  "replies": {
+    "en": {
+      "address": "📍 Find us at:\n{address}\n\nKorean-style studio, easy to find!",
+      "booking": "You can reserve your slot here 👇\n{booking}\n\nBooking online helps us prepare the best experience for you 💕",
+      "fallback": "I'm not quite sure what you mean 😅 Please pick an option below so I can help faster 👇",
+      "hours": "⏰ {shop} opening hours:\n{hours}\n\nWant me to hold a slot for you?",
+      "human": "Noted! Our staff will get back to you as soon as possible 🙏\nFeel free to leave your question here.",
+      "price": "Our service menu at {shop}:\n\n{services}\n\n👉 Book your slot here: {booking}",
+      "promo": "{promo}\n\n👉 Book here: {booking}",
+      "services": "Services at {shop}:\n\n{services}\n\nWhich service are you interested in? Happy to advise 💅",
+      "welcome": "Welcome to {shop} 💅\nHow can I help you today? Tap an option below 👇"
+    },
+    "ko": {
+      "address": "📍 주소:\n{address}\n\n한국 스타일 네일샵, 찾기 쉬워요!",
+      "booking": "여기에서 예약하실 수 있어요 👇\n{booking}\n\n온라인 예약하시면 더 정성껏 준비해 드릴게요 💕",
+      "fallback": "죄송해요, 잘 이해하지 못했어요 😅 아래 옵션 중 선택해 주시면 빠르게 도와드릴게요 👇",
+      "hours": "⏰ {shop} 영업시간:\n{hours}\n\n원하시는 시간대를 예약해 드릴까요?",
+      "human": "알겠습니다! 직원이 최대한 빨리 답변드릴게요 🙏\n문의 내용을 남겨주세요.",
+      "price": "{shop} 서비스 메뉴:\n\n{services}\n\n👉 예약하기: {booking}",
+      "promo": "{promo}\n\n👉 예약: {booking}",
+      "services": "{shop} 서비스:\n\n{services}\n\n관심 있는 서비스가 있으신가요? 자세히 안내해 드릴게요 💅",
+      "welcome": "{shop}에 오신 것을 환영합니다 💅\n무엇을 도와드릴까요? 아래에서 선택해 주세요 👇"
+    },
+    "vi": {
+      "address": "📍 Địa chỉ tiệm:\n{address}\n\nTiệm phong cách Hàn Quốc, dễ tìm lắm nè!",
+      "booking": "Bạn đặt lịch giữ chỗ tại đây nhé 👇\n{booking}\n\nĐặt online để bên mình chuẩn bị chu đáo nhất cho bạn 💕",
+      "fallback": "Mình chưa hiểu rõ ý bạn lắm 😅 Bạn chọn một mục bên dưới để mình hỗ trợ nhanh nhé 👇",
+      "hours": "⏰ {shop} mở cửa:\n{hours}\n\nBạn muốn mình giữ lịch khung giờ nào không?",
+      "human": "Dạ mình đã ghi nhận, nhân viên sẽ phản hồi bạn trong thời gian sớm nhất 🙏\nBạn cứ để lại câu hỏi ở đây nhé!",
+      "price": "Bảng giá dịch vụ tại {shop}:\n\n{services}\n\n👉 Đặt lịch giữ chỗ tại: {booking}",
+      "promo": "{promo}\n\n👉 Đặt lịch: {booking}",
+      "services": "Dịch vụ tại {shop}:\n\n{services}\n\nBạn quan tâm dịch vụ nào? Mình tư vấn chi tiết nhé 💅",
+      "welcome": "Chào bạn đã đến với {shop} 💅\nMình có thể giúp gì cho bạn hôm nay? Bạn chọn nhanh bên dưới nhé 👇"
+    }
+  },
+  "services": [
+    {
+      "id": "combo_care",
+      "name": {
+        "vi": "Combo chăm sóc (dũa - cắt da - mask)",
+        "en": "Combo care (File - cuticle - mask)",
+        "ko": "콤보 케어 (파일 - 큐티클 - 마스크)"
+      },
+      "price": "80.000-100.000đ"
+    },
+    {
+      "id": "combo_gel",
+      "name": {
+        "vi": "Combo gel một màu (dũa - cắt da - gel cứng - gel màu)",
+        "en": "COMBO gel one color (File - cuticle - hard gel - color gel)",
+        "ko": "콤보 젤 단색"
+      },
+      "price": "180.000đ"
+    },
+    {
+      "id": "combo_heel",
+      "name": {
+        "vi": "Combo chà gót chân (tẩy da chết - chà gót - mask)",
+        "en": "COMBO HEEL scrub (Exfoliate - heel scrub - mask)",
+        "ko": "힐 스크럽 콤보"
+      },
+      "price": "219.000đ"
+    },
+    {
+      "id": "tip_nail",
+      "name": {
+        "vi": "Úp móng giả (Tip nail)",
+        "en": "Tip nail (fake nail)",
+        "ko": "팁 네일 (인조 손톱)"
+      },
+      "price": "150.000đ"
+    },
+    {
+      "id": "extend_gel",
+      "name": {
+        "vi": "Nối móng bằng gel",
+        "en": "Extend by gel",
+        "ko": "젤 연장"
+      },
+      "price": "180.000đ"
+    },
+    {
+      "id": "fill_gel",
+      "name": {
+        "vi": "Fill / đắp gel",
+        "en": "Fill / spread gel",
+        "ko": "젤 필"
+      },
+      "price": "120.000đ"
+    },
+    {
+      "id": "cat_eye",
+      "name": {
+        "vi": "Mắt mèo (Cat eye - nam châm)",
+        "en": "Cat eye (magnetic)",
+        "ko": "캣아이 (자석)"
+      },
+      "price": "230.000đ"
+    },
+    {
+      "id": "chrome",
+      "name": {
+        "vi": "Tráng gương (Chrome - bột)",
+        "en": "Chrome nail (Powder)",
+        "ko": "크롬 네일 (파우더)"
+      },
+      "price": "230.000đ"
+    },
+    {
+      "id": "french",
+      "name": {
+        "vi": "Móng kiểu Pháp (French)",
+        "en": "French nail",
+        "ko": "프렌치 네일"
+      },
+      "price": "260.000-280.000đ"
+    },
+    {
+      "id": "ombre",
+      "name": {
+        "vi": "Ombre (loang màu - Gradation)",
+        "en": "Ombre nail (Gradation)",
+        "ko": "옴브레 (그라데이션)"
+      },
+      "price": "260.000-280.000đ"
+    },
+    {
+      "id": "flash",
+      "name": {
+        "vi": "Màu flash (nhũ - Glitter)",
+        "en": "Flash color (Glitter)",
+        "ko": "플래시 컬러 (글리터)"
+      },
+      "price": "200.000-250.000đ"
+    },
+    {
+      "id": "remove",
+      "name": {
+        "vi": "Tháo móng / phá gel",
+        "en": "Remove",
+        "ko": "제거"
+      },
+      "price": "40.000-50.000đ"
+    },
+    {
+      "id": "regular_polish",
+      "name": {
+        "vi": "Sơn thường (không gel)",
+        "en": "Regular polish (not gel)",
+        "ko": "일반 폴리시"
+      },
+      "price": "100.000-150.000đ"
+    },
+    {
+      "id": "mix_color",
+      "name": {
+        "vi": "Phối thêm màu (+1)",
+        "en": "Mix color (+1)",
+        "ko": "컬러 추가 (+1)"
+      },
+      "price": "+10.000đ/màu"
+    },
+    {
+      "id": "builder_gel",
+      "name": {
+        "vi": "Gel cứng dưỡng móng yếu (Builder gel)",
+        "en": "Builder gel (for weak nails)",
+        "ko": "빌더 젤 (약한 손톱용)"
+      },
+      "price": "60.000đ"
+    }
+  ],
+  "shop": {
+    "address": {
+      "en": "175 Nguyen Chi Thanh, Hai Chau, Da Nang, Vietnam",
+      "ko": "다낭 하이쩌우 응우옌찌타인 175",
+      "vi": "175 Nguyễn Chí Thanh, Hải Châu, Đà Nẵng"
+    },
+    "hours": {
+      "en": "9:00 AM – 8:00 PM daily",
+      "ko": "매일 09:00 – 20:00",
+      "vi": "9:00 – 20:00 hàng ngày"
+    },
+    "name": "AMOU NAIL STUDIO",
+    "phone": ""
+  }
+}
