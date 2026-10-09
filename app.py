@@ -33,6 +33,8 @@ AI_MODEL = os.environ.get("AI_MODEL", "gpt-4o-mini")
 # Direct Anthropic (Claude) API - takes priority over OPENAI_API_KEY when set
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
+# HTTP timeout (seconds) for AI calls - free providers can be slow, raise if needed
+AI_TIMEOUT = int(os.environ.get("AI_TIMEOUT", "25"))
 GRAPH = "https://graph.facebook.com/v21.0"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -214,11 +216,14 @@ def ai_provider() -> str:
 
 def build_system_prompt(lang: str) -> str:
     shop = KB["shop"]
+    addr = shop["address"].get(lang) or shop["address"]["en"]
+    hours = shop["hours"].get(lang) or shop["hours"]["en"]
+    booking = KB["booking_url"].get(lang) or KB["booking_url"]["en"]
     return (
         f"You are the friendly receptionist of {shop['name']}, a Korean-style nail studio. "
-        f"Address: {shop['address']['en']}. Hours: {shop['hours']['en']}. "
+        f"Address: {addr}. Hours: {hours}. "
         f"Services: {', '.join(s['name']['en'] for s in KB['services'])}. "
-        f"Booking: {KB['booking_url']['en']}. Current promo: {KB['promo']['en']}. "
+        f"Booking: {booking}. Current promo: {KB['promo']['en']}. "
         f"Answer in {'Vietnamese' if lang == 'vi' else 'English' if lang == 'en' else 'Korean'}. "
         "Keep replies short (under 80 words), warm, no emojis overload. "
         "If asked about prices not listed, say prices are confirmed in-store and share the booking link. "
@@ -239,7 +244,7 @@ def claude_reply(user_text: str, lang: str) -> str | None:
             json={"model": ANTHROPIC_MODEL, "max_tokens": 300,
                   "system": build_system_prompt(lang),
                   "messages": [{"role": "user", "content": user_text}]},
-            timeout=25,
+            timeout=AI_TIMEOUT,
         )
         r.raise_for_status()
         blocks = r.json().get("content", [])
@@ -259,7 +264,7 @@ def openai_reply(user_text: str, lang: str) -> str | None:
             json={"model": AI_MODEL, "temperature": 0.4, "max_tokens": 300,
                   "messages": [{"role": "system", "content": build_system_prompt(lang)},
                                {"role": "user", "content": user_text}]},
-            timeout=25,
+            timeout=AI_TIMEOUT,
         )
         r.raise_for_status()
         return r.json()["choices"][0]["message"]["content"].strip()

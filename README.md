@@ -92,6 +92,15 @@ nếu điền cả 2 thì Claude được ưu tiên:
      `https://openrouter.ai/api/v1` và `AI_MODEL` là `anthropic/claude-haiku-4-5`)
    - `AI_MODEL` = `gpt-4o-mini`
 
+**Cách C — Miễn phí hoàn toàn, không cần key (Pollinations)**
+1. Chỉ cần thêm 2 biến môi trường, không cần API key gì cả:
+   - `OPENAI_BASE_URL` = `https://text.pollinations.ai/openai`
+   - `AI_MODEL` = `openai`
+2. Lưu ý: đây là dịch vụ miễn phí dùng chung nên thỉnh thoảng chậm
+   hoặc bị giới hạn lượt gọi lúc cao điểm. Nếu AI không trả lời kịp,
+   bot tự động gửi menu nút bấm cho khách chọn thay vì im lặng.
+   (Có thể tăng `AI_TIMEOUT`, mặc định 25 giây.)
+
 **Token tính thế nào?**
 - Token do nhà cung cấp AI tính (Anthropic/OpenAI/...), trừ vào tài khoản
   gắn với API key — không liên quan đến Meta/Facebook.
