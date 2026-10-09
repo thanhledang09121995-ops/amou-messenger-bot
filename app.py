@@ -30,6 +30,9 @@ PAGE_TOKEN = os.environ.get("MESSENGER_PAGE_TOKEN", "")
 AI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 AI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 AI_MODEL = os.environ.get("AI_MODEL", "gpt-4o-mini")
+# Direct Anthropic (Claude) API - takes priority over OPENAI_API_KEY when set
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 GRAPH = "https://graph.facebook.com/v21.0"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -200,12 +203,18 @@ def handle_intent(psid: str, intent: str, lang: str):
         send_text(psid, T(lang, "human"), with_menu=False)
 
 
-def ai_reply(user_text: str, lang: str) -> str | None:
-    """Free-form answer grounded in the shop knowledge base."""
-    if not AI_API_KEY:
-        return None
+def ai_provider() -> str:
+    """Which AI backend answers free-form questions: 'anthropic' | 'openai' | 'off'."""
+    if ANTHROPIC_API_KEY:
+        return "anthropic"
+    if AI_API_KEY:
+        return "openai"
+    return "off"
+
+
+def build_system_prompt(lang: str) -> str:
     shop = KB["shop"]
-    system = (
+    return (
         f"You are the friendly receptionist of {shop['name']}, a Korean-style nail studio. "
         f"Address: {shop['address']['en']}. Hours: {shop['hours']['en']}. "
         f"Services: {', '.join(s['name']['en'] for s in KB['services'])}. "
@@ -215,20 +224,58 @@ def ai_reply(user_text: str, lang: str) -> str | None:
         "If asked about prices not listed, say prices are confirmed in-store and share the booking link. "
         "If the customer wants a human, say staff will be notified shortly."
     )
+
+
+def claude_reply(user_text: str, lang: str) -> str | None:
+    """Free-form answer via Anthropic's Messages API."""
+    try:
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={"model": ANTHROPIC_MODEL, "max_tokens": 300,
+                  "system": build_system_prompt(lang),
+                  "messages": [{"role": "user", "content": user_text}]},
+            timeout=25,
+        )
+        r.raise_for_status()
+        blocks = r.json().get("content", [])
+        text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
+        return text.strip() or None
+    except Exception as e:  # noqa: BLE001
+        log.error("Claude error: %s", e)
+        return None
+
+
+def openai_reply(user_text: str, lang: str) -> str | None:
+    """Free-form answer via any OpenAI-compatible chat completions API."""
     try:
         r = requests.post(
             f"{AI_BASE_URL}/chat/completions",
             headers={"Authorization": f"Bearer {AI_API_KEY}"},
             json={"model": AI_MODEL, "temperature": 0.4, "max_tokens": 300,
-                  "messages": [{"role": "system", "content": system},
+                  "messages": [{"role": "system", "content": build_system_prompt(lang)},
                                {"role": "user", "content": user_text}]},
             timeout=25,
         )
         r.raise_for_status()
         return r.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:  # noqa: BLE001
-        log.error("AI error: %s", e)
+        log.error("OpenAI-compatible AI error: %s", e)
         return None
+
+
+def ai_reply(user_text: str, lang: str) -> str | None:
+    """Free-form answer grounded in the shop knowledge base."""
+    provider = ai_provider()
+    if provider == "anthropic":
+        return claude_reply(user_text, lang)
+    if provider == "openai":
+        return openai_reply(user_text, lang)
+    return None
 
 
 def handle_message(psid: str, text: str):
@@ -286,7 +333,8 @@ def incoming():
 
 @app.get("/health")
 def health():
-    return jsonify(ok=True, page_token_set=bool(PAGE_TOKEN), ai_enabled=bool(AI_API_KEY))
+    return jsonify(ok=True, page_token_set=bool(PAGE_TOKEN),
+                   ai_provider=ai_provider())
 
 
 if __name__ == "__main__":

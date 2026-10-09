@@ -72,13 +72,33 @@ Khi app còn ở **Development Mode**, chỉ admin/tester của app mới nhắn
 
 ## (Tùy chọn) Bật AI trả lời tự do
 
-1. Có API key OpenAI (hoặc bất kỳ API nào tương thích OpenAI: OpenRouter, Groq...).
+Khi khách hỏi câu không khớp từ khóa nào, bot sẽ nhờ AI trả lời dựa trên
+thông tin trong `knowledge.json`. Có 2 cách — **điền 1 trong 2 là đủ**,
+nếu điền cả 2 thì Claude được ưu tiên:
+
+**Cách A — Claude (Anthropic)**
+1. Tạo API key tại [console.anthropic.com](https://console.anthropic.com)
+   (tài khoản mới thường được tặng credit dùng thử).
 2. Thêm biến môi trường:
+   - `ANTHROPIC_API_KEY` = key của bạn
+   - `ANTHROPIC_MODEL` = `claude-haiku-4-5-20251001` (bản Haiku rẻ nhất,
+     đủ dùng cho trả lời FAQ; kiểm tra tên model mới nhất trong console)
+
+**Cách B — OpenAI hoặc API tương thích (OpenRouter, Groq...)**
+1. Thêm biến môi trường:
    - `OPENAI_API_KEY` = key của bạn
-   - `OPENAI_BASE_URL` = `https://api.openai.com/v1` (hoặc URL của provider khác)
+   - `OPENAI_BASE_URL` = `https://api.openai.com/v1`
+     (dùng Claude qua OpenRouter mà không đổi code: để base URL
+     `https://openrouter.ai/api/v1` và `AI_MODEL` là `anthropic/claude-haiku-4-5`)
    - `AI_MODEL` = `gpt-4o-mini`
-3. Khi khách hỏi câu không khớp từ khóa nào, AI sẽ trả lời dựa trên
-   thông tin trong `knowledge.json` (địa chỉ, giờ, dịch vụ, link đặt lịch).
+
+**Token tính thế nào?**
+- Token do nhà cung cấp AI tính (Anthropic/OpenAI/...), trừ vào tài khoản
+  gắn với API key — không liên quan đến Meta/Facebook.
+- Mỗi tin nhắn AI tốn ~400–600 token (cả hỏi + đáp). Ví dụ Claude Haiku
+  (~$1/1 triệu token input, $5/1 triệu output): **1.000 tin nhắn ≈ $1–3**.
+- AI **chỉ chạy với câu hỏi lạ** — 90% câu hỏi thường gặp đã được template
+  trả lời miễn phí, nên chi phí thực tế còn thấp hơn nhiều.
 
 ## Tùy chỉnh nội dung
 
